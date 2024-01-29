@@ -1,5 +1,6 @@
 const express = require('express');
 const { register, useCounter } = require('./prom-client');
+const { userRegionStatistic } = require('./ip-test')
 
 const app = express();
 const metricPath = '/metrics';
@@ -51,3 +52,15 @@ app.listen(port, '0.0.0.0');
 console.log(
     `node-prometheus-grafana-demo start at http://localhost:${port}${metricPath}`
 );
+
+// 用法：
+// src\app.js
+app.post('/counter-metric', function (req, res) {
+    const { name, help, labels } = req.body;
+    useCounter({ name, help, labels });
+
+    userRegionStatistic(
+        req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    );
+    // ...
+});
